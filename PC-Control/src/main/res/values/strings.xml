@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">My Application</string>
+    <string name="title_activity_main_content">MainContent</string>
+    <string name="action_settings">Settings</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+    <string name="title_power">Power</string>
+    <string name="title_multimedia">Multimedia</string>
+    <string name="title_file">File</string>
+</resources>
