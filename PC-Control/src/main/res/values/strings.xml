@@ -6,4 +6,6 @@
     <string name="title_power">Power</string>
     <string name="title_multimedia">Multimedia</string>
     <string name="title_file">File</string>
+    <string name="volume_up">Volume up</string>
+    <string name="volume_down">Volume down</string>
 </resources>

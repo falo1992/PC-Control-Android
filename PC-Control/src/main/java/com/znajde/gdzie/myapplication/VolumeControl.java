@@ -5,7 +5,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.SeekBar;
+import android.widget.ToggleButton;
 
+import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -13,19 +16,36 @@ import java.util.concurrent.TimeUnit;
 public class VolumeControl extends AppCompatActivity {
 
     boolean mute;
-    ImageButton muteButton;
+    ToggleButton muteButton;
+    SeekBar seekBar;
+    double volumeLevel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_volume_control);
-        muteButton = (ImageButton) findViewById(R.id.muteButton);
+        muteButton = (ToggleButton) findViewById(R.id.muteButton);
+        seekBar = (SeekBar) findViewById(R.id.seekBar);
         mute = volumeGetMute();
-        if(mute) {
-            muteButton.setBackgroundResource(R.drawable.volume_mute);
-        }else{
-            muteButton.setBackgroundResource(R.drawable.volume_unmute);
-        }
+        muteButton.setChecked(mute);
+        seekBar.setProgress((int) volumeGet());
+
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                volumeLevel = progress/100.0;
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                volumeSet(volumeLevel);
+            }
+        });
     }
 
     public void volumeUp(View view) {
@@ -41,6 +61,8 @@ public class VolumeControl extends AppCompatActivity {
             es.awaitTermination(5, TimeUnit.SECONDS);
         }catch (InterruptedException e){
         }
+
+        seekBar.setProgress((int) volumeGet());
     }
 
     public void volumeDown(View view) {
@@ -56,6 +78,8 @@ public class VolumeControl extends AppCompatActivity {
             es.awaitTermination(5, TimeUnit.SECONDS);
         }catch (InterruptedException e){
         }
+
+        seekBar.setProgress((int) volumeGet());
     }
 
     public void volumeMute(View view) {
@@ -66,11 +90,9 @@ public class VolumeControl extends AppCompatActivity {
                 if(!mute) {
                     SocketSingleton.volumeMute();
                     mute = volumeGetMute();
-                    view.setBackgroundResource(R.drawable.volume_mute);
                 }else{
                     SocketSingleton.volumeUnmute();
                     mute = volumeGetMute();
-                    view.setBackgroundResource(R.drawable.volume_unmute);
                 }
             }
         });
@@ -96,5 +118,38 @@ public class VolumeControl extends AppCompatActivity {
         }catch (InterruptedException e){
         }
         return mute[0];
+    }
+
+    private void volumeSet(double volumeLevel) {
+        ExecutorService es = Executors.newCachedThreadPool();
+        es.execute(new Runnable() {
+            @Override
+            public void run() {
+                SocketSingleton.volumeSet(volumeLevel);
+            }
+        });
+        es.shutdown();
+        try {
+            es.awaitTermination(5, TimeUnit.SECONDS);
+        }catch (InterruptedException e){
+        }
+    }
+
+    private double volumeGet() {
+        final double[] volume = new double[1];
+        ExecutorService es = Executors.newCachedThreadPool();
+        es.execute(new Runnable() {
+            @Override
+            public void run() {
+                volume[0] = SocketSingleton.volumeGet();
+            }
+        });
+        es.shutdown();
+        try {
+            es.awaitTermination(5, TimeUnit.SECONDS);
+        }catch (InterruptedException e){
+        }
+
+        return volume[0];
     }
 }

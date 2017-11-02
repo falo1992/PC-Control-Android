@@ -39,6 +39,7 @@ public class SocketSingleton {
     private static InputStream inputStream;
     private static ObjectInputStream objectInputStream;
     private static Object msgObj;
+    private static boolean mute;
     private static String msg;
 
     public void SocketSingleton(){
@@ -173,12 +174,9 @@ public class SocketSingleton {
         try {
             objectOutputStream.writeObject(new String("get mute"));
             msgObj = objectInputStream.readObject();
-            msg = msgObj instanceof String ? (String) msgObj : null;
-            if(msg.equals("mute true")) {
-                return true;
-            }else{
-                return false;
-            }
+            mute = msgObj instanceof Boolean ? (Boolean) msgObj : null;
+
+            return mute;
         }catch(Exception e) {
         }
         return false;
@@ -193,6 +191,16 @@ public class SocketSingleton {
             return false;
         }
         return true;
+    }
+
+    public static double volumeGet(){
+        try {
+            objectOutputStream.writeObject(new String("get volume"));
+            msgObj = objectInputStream.readObject();
+            return msgObj instanceof Double ? ((Double) msgObj) * 100 : null;
+        }catch(Exception e) {
+        }
+        return 0;
     }
 
     public static void search(int port){
