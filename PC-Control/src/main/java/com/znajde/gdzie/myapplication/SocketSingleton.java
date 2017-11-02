@@ -38,6 +38,8 @@ public class SocketSingleton {
     private static ObjectOutputStream objectOutputStream;
     private static InputStream inputStream;
     private static ObjectInputStream objectInputStream;
+    private static Object msgObj;
+    private static String msg;
 
     public void SocketSingleton(){
 
@@ -165,6 +167,21 @@ public class SocketSingleton {
             return false;
         }
         return true;
+    }
+
+    public static boolean volumeGetMute() {
+        try {
+            objectOutputStream.writeObject(new String("get mute"));
+            msgObj = objectInputStream.readObject();
+            msg = msgObj instanceof String ? (String) msgObj : null;
+            if(msg.equals("mute true")) {
+                return true;
+            }else{
+                return false;
+            }
+        }catch(Exception e) {
+        }
+        return false;
     }
 
     public static boolean volumeSet(double volume) {
