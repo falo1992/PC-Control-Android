@@ -41,6 +41,14 @@ public class MultimediaFragment extends android.app.Fragment {
             }
         });
 
+        videoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), Video.class);
+                startActivity(intent);
+            }
+        });
+
 
         return view;
     }

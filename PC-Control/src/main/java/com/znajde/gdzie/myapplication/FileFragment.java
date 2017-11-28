@@ -39,11 +39,8 @@ public class FileFragment extends android.app.Fragment {
         downloadFileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new Thread() {
-                    public void run() {
-                        SocketSingleton.download("");
-                    }
-                }.start();
+                Intent intent = new Intent(getActivity(), DownloadFile.class);
+                startActivity(intent);
             }
         });
         return view;

@@ -2,8 +2,15 @@ package com.znajde.gdzie.myapplication;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.BitmapFactory;
+import android.os.Environment;
 import android.util.Log;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -41,6 +48,7 @@ public class SocketSingleton {
     private static Object msgObj;
     private static boolean mute;
     private static String msg;
+    private static byte[] buffer = new byte[8192];
 
     public void SocketSingleton(){
 
@@ -120,14 +128,94 @@ public class SocketSingleton {
         return true;
     }
 
-    public static boolean download(String path){
+    public static String[][] getRemoteFilesList(String path) {
+        String[][] remoteFiles = null;
 
-        return true;
+        try {
+            objectOutputStream.writeObject("get folder");
+            objectOutputStream.writeObject(path);
+        }catch(IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            msgObj = objectInputStream.readObject();
+            remoteFiles = msgObj instanceof String[][] ? (String[][]) msgObj : null;
+        }catch(IOException e){
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return remoteFiles != null ? remoteFiles : null;
     }
 
-    public static boolean send(String path){
+    public static boolean download(String filePath){
+        try{
+            objectOutputStream.writeObject("download");
+            objectOutputStream.writeObject(filePath);
 
-        return true;
+            msgObj = objectInputStream.readObject();
+            long fileSize = msgObj instanceof Long ? (Long) msgObj : null;
+            BufferedInputStream in = new BufferedInputStream(socket.getInputStream());
+            BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/" + filePath.substring(filePath.lastIndexOf("\\") + 1, filePath.length())));
+            int count = 0;
+            while( (count = in.read(buffer)) > 0 ) {
+                out.write(buffer, 0, count);
+                fileSize -= count;
+                if(fileSize ==0 ) {
+                    break;
+                }
+            }
+            out.flush();
+            out.close();
+            return true;
+        }catch (IOException e){
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static boolean send(String filePath){
+        try{
+            objectOutputStream.writeObject(new String("upload"));
+            objectOutputStream.writeObject("C:\\Users\\ZWAC0_000\\Desktop" + filePath.substring(filePath.lastIndexOf("/")));
+
+            long fileSize = new File(filePath).length();
+            OutputStream os = socket.getOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(os);
+            oos.writeObject(fileSize);
+            BufferedInputStream in = new BufferedInputStream(new FileInputStream(filePath));
+            BufferedOutputStream out = new BufferedOutputStream(socket.getOutputStream());
+            int count = 0;
+            while( (count = in.read(buffer)) > 0 ) {
+                out.write(buffer, 0, count);
+            }
+            out.flush();
+            in.close();
+            return true;
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static void getVideo() {
+
+
+        try {
+            objectOutputStream.writeObject("video");
+            while(true) {
+                Object input = objectInputStream.readObject();
+                byte[] array = input instanceof byte[] ? (byte[]) input : null;
+                Video.setImage(BitmapFactory.decodeByteArray(array, 0, array.length));
+            }
+        }catch(IOException e) {
+            e.printStackTrace();
+        }catch(ClassNotFoundException e){
+            e.printStackTrace();
+        }
     }
 
     public static boolean volumeUp() {

@@ -22,7 +22,7 @@ public class Search extends ListActivity {
     static ArrayAdapter<String> adapter;
 
 
-public static Handler UIHandler;
+    public static Handler UIHandler;
     static {
         UIHandler = new Handler(Looper.getMainLooper());
     }
@@ -37,7 +37,7 @@ public static Handler UIHandler;
     }
 
     @Override
-    protected  void onListItemClick(ListView l, View v, int position, long id) {
+    protected  void onListItemClick(ListView l, View v, final int position, long id) {
         super.onListItemClick(l, v, position, id);
         //TODO Popup window 'Do you want to connect to: ..... ?
         ExecutorService es = Executors.newCachedThreadPool();
@@ -59,7 +59,7 @@ public static Handler UIHandler;
         }
     }
 
-    public static void addListElement(String row){
+    public static void addListElement(final String row){
         Search.runOnUI(new Runnable() {
             @Override
             public void run() {

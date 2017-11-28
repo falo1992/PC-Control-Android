@@ -33,7 +33,9 @@
             android:exported="true" />
 
         <activity android:name=".FileBrowser" />
-        <activity android:name=".VolumeControl"></activity>
+        <activity android:name=".DownloadFile" />
+        <activity android:name=".VolumeControl" />
+        <activity android:name=".Video"></activity>
     </application>
 
 </manifest>

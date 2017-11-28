@@ -120,7 +120,7 @@ public class VolumeControl extends AppCompatActivity {
         return mute[0];
     }
 
-    private void volumeSet(double volumeLevel) {
+    private void volumeSet(final double volumeLevel) {
         ExecutorService es = Executors.newCachedThreadPool();
         es.execute(new Runnable() {
             @Override
