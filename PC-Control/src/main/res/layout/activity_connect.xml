@@ -16,7 +16,7 @@
         android:layout_marginStart="6dp"
         android:ems="10"
         android:inputType="text"
-        android:text="XXX.XXX.XXX.XXX"
+        android:text="192.168.0.102"
         app:layout_constraintBaseline_toBaselineOf="@+id/IPTextView"
         app:layout_constraintHorizontal_bias="0.319"
         app:layout_constraintLeft_toRightOf="@+id/IPTextView"

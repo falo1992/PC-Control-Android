@@ -39,12 +39,14 @@ public class SocketSingleton {
     private static SSLSocketFactory socketFactory;
     private static InetSocketAddress serverAddress;
     private static SSLSocket socket;
+    private static SSLSocket audioSocket;
+    private static SSLSocket videoSocket;
     private static SocketSingleton instance;
     private static Context context;
     private static OutputStream outputStream;
     private static ObjectOutputStream objectOutputStream;
-    private static InputStream inputStream;
-    private static ObjectInputStream objectInputStream;
+    private static InputStream inputStream, audioIS, videoIS;
+    private static ObjectInputStream objectInputStream, audioOIS, videoOIS;
     private static Object msgObj;
     private static boolean mute;
     private static String msg;
@@ -68,6 +70,7 @@ public class SocketSingleton {
         try{
             socket = (SSLSocket) socketFactory.createSocket(serverAddress.getHostName(), serverAddress.getPort());
             socket.startHandshake();
+
             outputStream = socket.getOutputStream();
             objectOutputStream = new ObjectOutputStream(outputStream);
             inputStream = socket.getInputStream();
@@ -201,20 +204,50 @@ public class SocketSingleton {
         return false;
     }
 
+    public static void getAudio() {
+        try {
+            objectOutputStream.writeObject("audio");
+            startAudioSocket();
+            byte[] audioArray;
+
+            while(true) {
+                Object audioInput = audioOIS.readObject();
+                audioArray = audioInput instanceof byte[] ? (byte[]) audioInput : null;
+                    Audio.setAudio(audioArray);
+            }
+        }catch(IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                audioOIS.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public static void getVideo() {
-
-
         try {
             objectOutputStream.writeObject("video");
+            startVideoSocket();
+
             while(true) {
-                Object input = objectInputStream.readObject();
-                byte[] array = input instanceof byte[] ? (byte[]) input : null;
-                Video.setImage(BitmapFactory.decodeByteArray(array, 0, array.length));
+                Object videoInput = videoOIS.readObject();
+                byte[] videoArray = videoInput instanceof byte[] ? (byte[]) videoInput : null;
+                Video.setImage(BitmapFactory.decodeByteArray(videoArray, 0, videoArray.length));
             }
         }catch(IOException e) {
             e.printStackTrace();
         }catch(ClassNotFoundException e){
             e.printStackTrace();
+        } finally {
+            try {
+                videoOIS.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -353,5 +386,27 @@ public class SocketSingleton {
 
     public ObjectOutputStream getObjectOutputStream(){
         return objectOutputStream;
+    }
+
+    private static void startAudioSocket() {
+        try {
+            audioSocket = (SSLSocket) socketFactory.createSocket(serverAddress.getHostName(), 3000);
+            audioSocket.startHandshake();
+            audioIS = audioSocket.getInputStream();
+            audioOIS = new ObjectInputStream(audioIS);
+        }catch(IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void startVideoSocket() {
+        try {
+            videoSocket = (SSLSocket) socketFactory.createSocket(serverAddress.getHostName(), 4000);
+            videoSocket.startHandshake();
+            videoIS = videoSocket.getInputStream();
+            videoOIS = new ObjectInputStream(videoIS);
+        }catch(IOException e) {
+            e.printStackTrace();
+        }
     }
 }

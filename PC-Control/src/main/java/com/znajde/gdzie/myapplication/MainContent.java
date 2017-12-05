@@ -9,6 +9,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 public class MainContent extends AppCompatActivity {
 
     private PowerFragment powerFragment = new PowerFragment();
@@ -45,7 +49,5 @@ public class MainContent extends AppCompatActivity {
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         fragmentManager.beginTransaction().replace(R.id.mainContent, powerFragment, powerFragment.getTag()).commit();
-        //navigation.getMenu().getItem(0).setChecked(true);
     }
-
 }

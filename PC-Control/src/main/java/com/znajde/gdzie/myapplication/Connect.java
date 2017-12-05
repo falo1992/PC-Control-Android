@@ -24,7 +24,6 @@ public class Connect extends AppCompatActivity {
     }
 
     public void connect (View view) {
-        //new Thread(new ClientThread()).start();
         ExecutorService es = Executors.newCachedThreadPool();
         es.execute(new Runnable() {
             @Override
@@ -35,9 +34,10 @@ public class Connect extends AppCompatActivity {
         });
         es.shutdown();
         try {
-            es.awaitTermination(5, TimeUnit.SECONDS);
+            es.awaitTermination(15, TimeUnit.SECONDS);
         }catch (InterruptedException e){
         }
+
         if(connected) {
             Intent intent = new Intent(this, MainContent.class);
             startActivity(intent);
